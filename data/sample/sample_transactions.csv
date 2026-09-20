@@ -1,0 +1,10 @@
+Transaction ID,Date,Description,Amount,Customer,Category,Currency,Cost,Quantity,Unit Price,Region
+TXN-001,2026-01-05,Office supplies,120.5,Acme Co,ops,USD,40.0,5,24.1,west
+TXN-002,2026-01-08,Consulting hours,1500.0,Beta LLC,services,USD,600.0,10,150.0,east
+TXN-003,2026-02-01,Software subscription,299.99,Acme Co,saas,USD,50.0,1,299.99,west
+TXN-001,2026-01-05,Office supplies,120.5,Acme Co,ops,USD,40.0,5,24.1,west
+TXN-002,2026-01-09,Consulting hours adjustment,100.0,Beta LLC,services,USD,20.0,1,100.0,east
+TXN-004,2026-02-10,,75.0,Gamma Inc,ops,USD,10.0,3,25.0,central
+TXN-005,not-a-date,Travel reimbursement,220.0,Delta SA,travel,USD,220.0,1,220.0,east
+TXN-006,2026-02-15,Misc fee,abc,Echo GmbH,fees,USD,0.0,1,0.0,west
+TXN-007,2026-03-03,Hardware purchase,899.0,Acme Co,capex,USD,700.0,1,899.0,west
