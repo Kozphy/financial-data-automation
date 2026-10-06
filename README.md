@@ -161,4 +161,4 @@ Sample data is synthetic. Do not place real customer or account data in this rep
 I build custom versions of this pipeline for small businesses and finance teams: cleaning your exports, automating your monthly reports, and adding reconciliation checks and dashboards.
 
 - Portfolio: https://kozphy.github.io
-- Upwork: [add your Upwork profile link here]
+- Upwork: [Hire me on Upwork](https://www.upwork.com/freelancers/~01f2d28a00fa4262d3)
