@@ -1,0 +1,73 @@
+docs/commercial/LICENSE-DRAFT.md
+  s_6a68cda50f84b0::t_1cf37847e09a17 1-6,8,10,15-16
+  s_6a68cda50f84b0::t_521dd20acbc454 7,9,11-14
+run_pipeline.py
+  s_6a68cda50f84b0::t_8352f03d5e1571 15
+pyproject.toml
+  s_6a68cda50f84b0::t_0f0a6298ba0026 31-34
+  s_6a68cda50f84b0::t_eb4089b4900c6d 19,22-23
+  s_6a68cda50f84b0::t_25e8835be7d4dc 35-37
+  s_6a68cda50f84b0::t_ab2c83f9757c7e 24
+docs/commercial/BACKLOG.md
+  s_6a68cda50f84b0::t_d303ebd8ed7444 1-23
+docs/USER_GUIDE.md
+  s_6a68cda50f84b0::t_6460dbfa3bc29c 1-32
+.github/dependabot.yml
+  s_6a68cda50f84b0::t_d93c5c8657be89 1-10
+tests/test_reporting.py
+  s_6a68cda50f84b0::t_8a245c078b5c21 1-55
+src/financial_data_automation/cli.py
+  s_6a68cda50f84b0::t_c9dbc206d97c0a 1-38
+src/financial_data_automation/packaging.py
+  s_6a68cda50f84b0::t_d4f93970529fa1 1-36
+scripts/write_revenue_dashboard.py
+  s_6a68cda50f84b0::t_c5697f00d0e264 1,5
+  s_6a68cda50f84b0::t_be5d6c1b1bd34c 2-4,6-7,14-15
+  s_6a68cda50f84b0::t_3b18dac3e6b499 8-13
+tests/test_dashboard.py
+  s_6a68cda50f84b0::t_72738bdf200c58 1-6,8-20
+  s_6a68cda50f84b0::t_5d5802c2a63002 7
+tests/test_cli.py
+  s_6a68cda50f84b0::t_2dc000784c5340 1-25
+src/financial_data_automation/dashboard.py
+  s_6a68cda50f84b0::t_9f8c65efb873d0 1-62
+src/financial_data_automation/reporting.py
+  s_6a68cda50f84b0::t_8f8ad23f706bc5 9
+  s_6a68cda50f84b0::t_9b4fae60e13941 77-84,86-112
+  s_6a68cda50f84b0::t_625e8fc3bec072 85
+  s_6a68cda50f84b0::t_6a7f2b957ebe54 61
+  s_6a68cda50f84b0::t_f278434338d120 10-27
+docs/commercial/SAAS-VALIDATION.md
+  s_6a68cda50f84b0::t_485a89e1f866d6 1-25
+.github/workflows/ci.yml
+  s_6a68cda50f84b0::t_e67a9d11697a95 1-17
+.github/pull_request_template.md
+  s_6a68cda50f84b0::t_cc9006461515e0 1-14
+docs/commercial/AUDIT.md
+  s_6a68cda50f84b0::t_aa53353a4dbcaa 1-30
+docs/commercial/UPWORK.md
+  s_6a68cda50f84b0::t_3c6b3f6e764dc4 1-79
+tests/test_package.py
+  s_6a68cda50f84b0::t_fbce5e238662b5 1-2,4-17
+  s_6a68cda50f84b0::t_41e11aef130e4d 3
+docs/commercial/GUMROAD.md
+  s_6a68cda50f84b0::t_6377c97e7acd16 1-58
+docs/examples/sample-output/quality_report.csv
+  s_6a68cda50f84b0::t_62da0a3f9e02f8 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "01383b3d45239f0b0835ffb211571fa4a98636ba",
+  "prompts": {},
+  "sessions": {
+    "s_6a68cda50f84b0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2d32776d-056b-4e69-8cb6-c19738fd2467",
+        "model": "default"
+      },
+      "human_author": "Zixsa <50504962+Kozphy@users.noreply.github.com>"
+    }
+  }
+}
