@@ -6,6 +6,25 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
+
+DISCLAIMER = (
+    "Calculated from the supplied file. "
+    "This is not an audit opinion, a forecast, or a guarantee of financial results."
+)
+_AMOUNT_FORMAT = "#,##0.00"
+_RATIO_FORMAT = "0.00%"
+_HEADER_FILL = PatternFill("solid", fgColor="D9E2F3")
+_AMOUNT_HEADERS = {
+    "total_amount",
+    "average_amount",
+    "minimum_amount",
+    "maximum_amount",
+    "gross_profit",
+    "amount",
+}
+_RATIO_HEADERS = {"gross_margin"}
 
 
 def write_reports(
@@ -39,6 +58,7 @@ def write_reports(
         monthly_df.to_excel(writer, sheet_name="monthly", index=False)
         quality_df.to_excel(writer, sheet_name="quality", index=False)
 
+    _format_summary_workbook(summary_path)
     quality_df.to_csv(quality_path, index=False)
 
     return [
@@ -54,3 +74,39 @@ def verify_outputs(output_dir: str | Path, expected_names: list[str]) -> list[st
     out = Path(output_dir)
     missing = [name for name in expected_names if not (out / name).exists()]
     return missing
+
+
+def _format_summary_workbook(path: Path) -> None:
+    from openpyxl import load_workbook
+
+    workbook = load_workbook(path)
+    notice = workbook.create_sheet("notice", 0)
+    notice["A1"] = DISCLAIMER
+    notice["A1"].alignment = Alignment(wrap_text=True)
+    notice.column_dimensions["A"].width = 88
+    for name in ("summary", "monthly", "quality"):
+        _format_sheet(workbook[name])
+    workbook.save(path)
+
+
+def _format_sheet(sheet) -> None:
+    sheet.freeze_panes = "A2"
+    sheet.auto_filter.ref = sheet.dimensions
+    for cell in sheet[1]:
+        cell.font = Font(bold=True)
+        cell.fill = _HEADER_FILL
+        if isinstance(cell.value, str):
+            letter = get_column_letter(cell.column)
+            sheet.column_dimensions[letter].width = max(len(cell.value) + 2, 14)
+    headers = [cell.value for cell in sheet[1]]
+    for index, header in enumerate(headers, start=1):
+        number_format = None
+        if header in _AMOUNT_HEADERS:
+            number_format = _AMOUNT_FORMAT
+        elif header in _RATIO_HEADERS:
+            number_format = _RATIO_FORMAT
+        if number_format is None:
+            continue
+        for row in range(2, sheet.max_row + 1):
+            sheet.cell(row, index).number_format = number_format
+
