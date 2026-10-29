@@ -45,9 +45,13 @@ def build_success_evidence(
     invalid_amounts: int,
     quality_score: float,
     outputs: list[str],
+    language: str = "en",
+    columns_mapped: int = 0,
+    debit_credit_combined: bool = False,
+    mapping_file: str | None = None,
 ) -> dict[str, Any]:
     """Build a success audit record."""
-    return {
+    record: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "run_id": run_id,
         "input_file": sanitize_input_name(input_file),
@@ -60,7 +64,13 @@ def build_success_evidence(
         "quality_score": quality_score,
         "outputs": outputs,
         "status": "success",
+        "language": language,
+        "columns_mapped": columns_mapped,
+        "debit_credit_combined": debit_credit_combined,
     }
+    if mapping_file:
+        record["mapping_file"] = sanitize_input_name(mapping_file)
+    return record
 
 
 def build_failure_evidence(

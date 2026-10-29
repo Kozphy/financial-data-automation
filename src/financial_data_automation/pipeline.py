@@ -17,7 +17,9 @@ from financial_data_automation.evidence import (
     build_success_evidence,
     new_run_id,
 )
+from financial_data_automation.i18n import normalize_language
 from financial_data_automation.ingestion import load_data
+from financial_data_automation.mapping import map_columns
 from financial_data_automation.reporting import verify_outputs, write_reports
 from financial_data_automation.validation import validate_schema
 
@@ -32,9 +34,11 @@ def run_pipeline(
     *,
     output_dir: str | Path | None = None,
     evidence_path: str | Path | None = None,
+    mapping_path: str | Path | None = None,
+    language: str = "en",
 ) -> dict[str, Any]:
     """
-    Execute load → validate → clean → analyze → report → verify → evidence.
+    Execute load → map columns → validate → clean → analyze → report → verify → evidence.
 
     Parameters
     ----------
@@ -44,6 +48,11 @@ def run_pipeline(
         Destination for processed artifacts. Defaults to ``data/processed``.
     evidence_path:
         JSONL audit log path. Defaults to ``evidence/audit.jsonl``.
+    mapping_path:
+        Optional CSV, JSON, or XLSX file mapping source headers to canonical
+        fields (columns ``source`` and ``target``).
+    language:
+        Report label language. ``en`` (default) or ``zh-TW``.
     """
     root = _project_root()
     out_dir = Path(output_dir) if output_dir is not None else root / "data" / "processed"
@@ -51,16 +60,20 @@ def run_pipeline(
         Path(evidence_path) if evidence_path is not None else root / "evidence" / "audit.jsonl"
     )
     run_id = new_run_id()
+    lang = normalize_language(language)
 
     try:
         raw = load_data(input_path)
         input_rows = int(len(raw))
+        raw, mapping_report = map_columns(raw, mapping_path)
 
         validation = validate_schema(raw)
         if validation["missing_columns"]:
+            present = ", ".join(str(column) for column in raw.columns) or "(none)"
             raise ValueError(
                 "Missing required columns: "
                 + ", ".join(validation["missing_columns"])
+                + f". Present columns: {present}."
             )
 
         coerced = validation["coerced_frame"]
@@ -93,6 +106,11 @@ def run_pipeline(
                 "check": "inconsistent_quantity_price",
                 "value": validation.get("inconsistent_quantity_price", 0),
             },
+            {"check": "columns_mapped", "value": len(mapping_report["renames"])},
+            {
+                "check": "debit_credit_combined",
+                "value": int(bool(mapping_report["debit_credit_combined"])),
+            },
         ]
 
         outputs = write_reports(
@@ -102,6 +120,7 @@ def run_pipeline(
             monthly_df=monthly,
             quality_rows=quality_rows,
             output_dir=out_dir,
+            language=lang,
         )
         missing = verify_outputs(out_dir, outputs)
         if missing:
@@ -118,6 +137,10 @@ def run_pipeline(
             invalid_amounts=int(validation["invalid_amounts"]),
             quality_score=quality_score,
             outputs=outputs,
+            language=lang,
+            columns_mapped=len(mapping_report["renames"]),
+            debit_credit_combined=bool(mapping_report["debit_credit_combined"]),
+            mapping_file=str(mapping_path) if mapping_path else None,
         )
         append_evidence(evidence, evidence_file)
 
@@ -134,6 +157,8 @@ def run_pipeline(
             "validation": {
                 k: v for k, v in validation.items() if k != "coerced_frame"
             },
+            "column_mapping": mapping_report,
+            "language": lang,
         }
     except Exception as exc:
         failure = build_failure_evidence(

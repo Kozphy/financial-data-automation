@@ -1,0 +1,8 @@
+source,target
+訂單編號,transaction_id
+交易日期,date
+摘要,description
+金額,amount
+支出,debit
+存入,credit
+客戶名稱,customer
