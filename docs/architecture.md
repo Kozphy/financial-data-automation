@@ -30,6 +30,36 @@ Column normalization:
 2. lowercase
 3. replace spaces with underscores
 
+CSV files are read as UTF-8 (BOM allowed), UTF-16 when a BOM is present, then Big5/cp950.
+
+## Column mapping
+
+`mapping.py` runs after normalization and before validation.
+
+Match order:
+
+1. Optional user mapping file (`.csv`, `.json`, or `.xlsx`, columns `source` and `target`)
+2. Header is already canonical
+3. Exact synonym (English accounting/export names and Traditional Chinese, plus common Simplified forms)
+4. Fuzzy match (`difflib`, threshold 0.88) for non-Chinese typos such as `ammount`
+
+Extra columns that do not match are kept. `餘額` is intentionally not treated as `amount`.
+
+If several columns could be the amount, the date, or the transaction id, the run stops and lists them. Description ties prefer the higher-priority synonym (for example 摘要 over 備註) and keep the other column.
+
+When `amount` is missing but a debit/credit pair is present (`支出`/`存入`, `debit`/`credit`), the pipeline adds `amount = credit - debit`. Withdrawals become negative. The source columns stay on the row. A non-numeric debit or credit cell is copied into `amount` so validation can reject it as `invalid_amount`.
+
+Unmapped required columns raise `ValueError` starting with `Missing required columns`, including the headers that were present. No rows are deleted on that failure.
+
+## Dates and amounts
+
+`formats.py` parses:
+
+- ROC dates: `113/05/01`, `113年5月1日`, `民國113年5月1日`, full-width digits. A 3-digit year is 民國 (year + 1911). `2026-01-01` and `2024年5月1日` stay Gregorian.
+- Amounts: `NT$1,234.50`, thousands separators, full-width digits, and parentheses for negatives.
+
+Plain numbers and ISO dates keep the previous behavior. `abc` and `not-a-date` are still invalid.
+
 ## Validation boundary
 
 `validation.py` is responsible for:
@@ -100,7 +130,11 @@ clean_rows / input_rows
 - `financial_summary.xlsx` (`summary`, `monthly`, `quality` sheets)
 - `quality_report.csv`
 
-Then verifies that expected files exist before success evidence is recorded.
+Pass `language="zh-TW"` to use Traditional Chinese column headers, sheet names (`摘要`, `每月合計`, `品質`), a `剔除說明` column on rejected rows, and a `說明` column on the quality report. English output keeps the canonical header names. Quality checks `columns_mapped` and `debit_credit_combined` are included in the quality report.
+
+`streamlit_app.py` is a local upload page over the same `run_pipeline` function. It is not a separate cleaning implementation.
+
+`verify_outputs` checks that the expected files exist before success evidence is recorded.
 
 ## Audit evidence
 
@@ -112,16 +146,18 @@ Success records include counts, quality score, and output file names (basename o
 - `duplicates_removed` = rejected rows with reason `exact_duplicate_row` or `duplicate_transaction_id`
 - `invalid_dates` / `invalid_amounts` = validation validity counts (unparseable present values), not the full reject tally
 - `input_file` = file name only (never an absolute user path)
+- `language`, `columns_mapped`, and `debit_credit_combined` record the mapping run
+- `mapping_file` is the mapping file name only, and only when one was supplied
 
 Failure records include error type/message and sanitized input file name only (no home-directory paths).
 
 ## Failure behavior
 
 - Missing files and unsupported formats raise clear exceptions during ingestion.
-- Missing required columns fail the pipeline after validation.
+- Missing required columns fail the pipeline during column mapping (or validation if a required field is still absent). The error names the missing fields and the headers that were present.
 - Any exception during the run appends a `status=failed` evidence line, then re-raises.
 - The CLI exits non-zero on failure.
 
-## Non-goals (v1)
+## Non-goals
 
-No database, web UI, cloud services, LLM/agents, Docker, or workflow engines.
+No database, hosted service, cloud storage, LLM/agents, Docker, or workflow engine. The web UI is a local Streamlit page, not a multi-user server.

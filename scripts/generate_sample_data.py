@@ -137,6 +137,142 @@ def build_sample_frame() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def build_taiwan_frame() -> pd.DataFrame:
+    """Traditional Chinese headers, ROC dates, and TWD amounts, with bad rows."""
+    rows = [
+        {
+            "交易編號": "TXN-101",
+            "交易日期": "113/05/01",
+            "摘要": "辦公用品",
+            "金額": "NT$1,200.50",
+            "客戶": "台北商行",
+            "類別": "營運",
+            "幣別": "TWD",
+            "成本": "NT$400.00",
+            "數量": 5,
+            "單價": "NT$240.10",
+            "地區": "北區",
+        },
+        {
+            "交易編號": "TXN-102",
+            "交易日期": "113年5月8日",
+            "摘要": "顧問服務",
+            "金額": "2,500",
+            "客戶": "高雄企業",
+            "類別": "服務",
+            "幣別": "TWD",
+            "成本": 800,
+            "數量": 1,
+            "單價": 2500,
+            "地區": "南區",
+        },
+        {
+            "交易編號": "TXN-103",
+            "交易日期": "113/06/01",
+            "摘要": "退貨",
+            "金額": "(NT$300.00)",
+            "客戶": "台北商行",
+            "類別": "營運",
+            "幣別": "TWD",
+            "成本": 0,
+            "數量": 1,
+            "單價": 0,
+            "地區": "北區",
+        },
+        # Exact duplicate of TXN-101
+        {
+            "交易編號": "TXN-101",
+            "交易日期": "113/05/01",
+            "摘要": "辦公用品",
+            "金額": "NT$1,200.50",
+            "客戶": "台北商行",
+            "類別": "營運",
+            "幣別": "TWD",
+            "成本": "NT$400.00",
+            "數量": 5,
+            "單價": "NT$240.10",
+            "地區": "北區",
+        },
+        {
+            "交易編號": "TXN-104",
+            "交易日期": "113/06/15",
+            "摘要": None,
+            "金額": "500",
+            "客戶": "台中店",
+            "類別": "營運",
+            "幣別": "TWD",
+            "成本": 100,
+            "數量": 1,
+            "單價": 500,
+            "地區": "中區",
+        },
+        {
+            "交易編號": "TXN-105",
+            "交易日期": "不是日期",
+            "摘要": "交通費",
+            "金額": "220",
+            "客戶": "台中店",
+            "類別": "差旅",
+            "幣別": "TWD",
+            "成本": 220,
+            "數量": 1,
+            "單價": 220,
+            "地區": "中區",
+        },
+        {
+            "交易編號": "TXN-106",
+            "交易日期": "113/07/01",
+            "摘要": "雜費",
+            "金額": "abc",
+            "客戶": "新竹店",
+            "類別": "費用",
+            "幣別": "TWD",
+            "成本": 0,
+            "數量": 1,
+            "單價": 0,
+            "地區": "北區",
+        },
+        {
+            "交易編號": "TXN-107",
+            "交易日期": "１１３／０８／０１",
+            "摘要": "設備",
+            "金額": "１，５００",
+            "客戶": "新竹店",
+            "類別": "資本",
+            "幣別": "TWD",
+            "成本": 900,
+            "數量": 1,
+            "單價": 1500,
+            "地區": "北區",
+        },
+    ]
+    return pd.DataFrame(rows)
+
+
+def build_bank_frame() -> pd.DataFrame:
+    """Taiwan bank-statement shape: 支出 / 存入 instead of a single amount column."""
+    return pd.DataFrame(
+        [
+            {
+                "交易序號": "B001",
+                "交易日期": "113/03/01",
+                "摘要": "薪資轉入",
+                "支出": None,
+                "存入": "NT$50,000",
+                "餘額": "NT$50,000",
+            },
+            {
+                "交易序號": "B002",
+                "交易日期": "113年3月2日",
+                "摘要": "超市",
+                "支出": "1,250",
+                "存入": None,
+                "餘額": "NT$48,750",
+            },
+        ]
+    )
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     sample_dir = root / "data" / "sample"
@@ -148,6 +284,19 @@ def main() -> None:
     df.to_csv(csv, index=False)
     print(f"Wrote {xlsx.relative_to(root).as_posix()}")
     print(f"Wrote {csv.relative_to(root).as_posix()}")
+
+    taiwan = build_taiwan_frame()
+    taiwan_csv = sample_dir / "sample_transactions_zh_tw.csv"
+    taiwan_xlsx = sample_dir / "sample_transactions_zh_tw.xlsx"
+    taiwan.to_csv(taiwan_csv, index=False, encoding="utf-8-sig")
+    taiwan.to_excel(taiwan_xlsx, index=False)
+    print(f"Wrote {taiwan_csv.relative_to(root).as_posix()}")
+    print(f"Wrote {taiwan_xlsx.relative_to(root).as_posix()}")
+
+    bank = build_bank_frame()
+    bank_csv = sample_dir / "sample_bank_statement_zh_tw.csv"
+    bank.to_csv(bank_csv, index=False, encoding="utf-8-sig")
+    print(f"Wrote {bank_csv.relative_to(root).as_posix()}")
 
 
 if __name__ == "__main__":

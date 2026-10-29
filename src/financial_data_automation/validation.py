@@ -6,6 +6,8 @@ from typing import Any
 
 import pandas as pd
 
+from financial_data_automation.formats import parse_amount_series, parse_date_series
+
 REQUIRED_COLUMNS = ("transaction_id", "date", "description", "amount")
 NON_NEGATIVE_OPTIONAL = ("quantity", "unit_price", "cost")
 
@@ -52,13 +54,13 @@ def validate_schema(df: pd.DataFrame) -> dict[str, Any]:
         for col in REQUIRED_COLUMNS
     }
 
-    parsed_dates = pd.to_datetime(working["date"], errors="coerce")
+    parsed_dates = parse_date_series(working["date"])
     originally_present = working["date"].notna() & ~_blank_string_mask(working["date"])
     failed_parse = originally_present & parsed_dates.isna()
     report["invalid_dates"] = int(failed_parse.sum())
     working["date"] = parsed_dates
 
-    parsed_amounts = pd.to_numeric(working["amount"], errors="coerce")
+    parsed_amounts = parse_amount_series(working["amount"])
     present_non_empty = working["amount"].notna() & ~_blank_string_mask(working["amount"])
     failed_amt = present_non_empty & parsed_amounts.isna()
     report["invalid_amounts"] = int(failed_amt.sum())
@@ -74,7 +76,7 @@ def validate_schema(df: pd.DataFrame) -> dict[str, Any]:
     negatives: dict[str, int] = {}
     for col in NON_NEGATIVE_OPTIONAL:
         if col in working.columns:
-            numeric = pd.to_numeric(working[col], errors="coerce")
+            numeric = parse_amount_series(working[col])
             working[col] = numeric
             negatives[col] = int((numeric.notna() & (numeric < 0)).sum())
     report["negative_optional_fields"] = negatives

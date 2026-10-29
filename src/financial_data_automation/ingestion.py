@@ -43,8 +43,26 @@ def load_data(path: str | Path) -> pd.DataFrame:
         )
 
     if suffix == ".csv":
-        df = pd.read_csv(file_path)
+        df = _read_csv(file_path)
     else:
         df = pd.read_excel(file_path, engine="openpyxl")
 
     return normalize_column_names(df)
+
+
+def _read_csv(file_path: Path) -> pd.DataFrame:
+    """Read CSV as UTF-8 (with BOM), UTF-16, or Big5/cp950."""
+    raw = file_path.read_bytes()[:4]
+    if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
+        return pd.read_csv(file_path, encoding="utf-16")
+
+    last_error: UnicodeDecodeError | None = None
+    for encoding in ("utf-8-sig", "cp950"):
+        try:
+            return pd.read_csv(file_path, encoding=encoding)
+        except UnicodeDecodeError as exc:
+            last_error = exc
+    raise ValueError(
+        f"Could not decode '{file_path.name}' as UTF-8 or Big5 (cp950). "
+        "Save the file as UTF-8 and try again."
+    ) from last_error
