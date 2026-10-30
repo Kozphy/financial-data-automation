@@ -1,6 +1,15 @@
 # Turn messy finance spreadsheets into clean, audit-ready reports, automatically
 
-**Stop fixing the same Excel errors every month.** This Python pipeline takes raw transaction files (Excel or CSV), finds and quarantines bad data, and produces clean data, a financial summary, and a data-quality report with one command.
+**Stop fixing the same Excel errors every month.** Give it raw transaction exports (Excel or CSV) and one command produces:
+
+- a **cleaned dataset**
+- a **rejected-rows file** listing the reason for each rejection
+- a **financial summary** with monthly totals
+- a **data-quality report**
+
+Every run is logged for audit.
+
+**Hire me on Upwork:** [https://www.upwork.com/freelancers/~01f2d28a00fa4262d3](https://www.upwork.com/freelancers/~01f2d28a00fa4262d3)
 
 ![Before and after](docs/before-after.png)
 
@@ -18,7 +27,7 @@
 - Checking data quality before importing into another system
 - Producing consistent monthly summaries that anyone can rerun
 
-> Need this set up for your own data? See **Work with me** at the bottom.
+> Need this set up for your own data? [Contact me on Upwork](https://www.upwork.com/freelancers/~01f2d28a00fa4262d3).
 
 ---
 
@@ -161,4 +170,4 @@ Sample data is synthetic. Do not place real customer or account data in this rep
 I build custom versions of this pipeline for small businesses and finance teams: cleaning your exports, automating your monthly reports, and adding reconciliation checks and dashboards.
 
 - Portfolio: https://kozphy.github.io
-- Upwork: [add your Upwork profile link here]
+- Upwork: https://www.upwork.com/freelancers/~01f2d28a00fa4262d3
