@@ -1,0 +1,9 @@
+check,value
+missing_columns,0.0
+invalid_dates,1.0
+invalid_amounts,1.0
+duplicate_transaction_ids_flagged,4.0
+rejected_rows,5.0
+clean_rows,4.0
+quality_score,0.444444
+inconsistent_quantity_price,0.0
