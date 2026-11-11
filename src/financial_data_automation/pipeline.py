@@ -18,6 +18,8 @@ from financial_data_automation.evidence import (
     new_run_id,
 )
 from financial_data_automation.ingestion import load_data
+from financial_data_automation.integrity import hash_outputs, sha256_file
+from financial_data_automation.reconciliation import reconcile_amounts
 from financial_data_automation.reporting import verify_outputs, write_reports
 from financial_data_automation.validation import validate_schema
 
@@ -51,8 +53,10 @@ def run_pipeline(
         Path(evidence_path) if evidence_path is not None else root / "evidence" / "audit.jsonl"
     )
     run_id = new_run_id()
+    input_sha256 = None
 
     try:
+        input_sha256 = sha256_file(input_path)
         raw = load_data(input_path)
         input_rows = int(len(raw))
 
@@ -65,6 +69,7 @@ def run_pipeline(
 
         coerced = validation["coerced_frame"]
         cleaned, rejected = clean_data(coerced)
+        reconciliation = reconcile_amounts(coerced, cleaned, rejected)
 
         # Quarantined duplicates: exact row copies and later duplicate transaction_ids.
         duplicate_reasons = {"exact_duplicate_row", "duplicate_transaction_id"}
@@ -119,10 +124,15 @@ def run_pipeline(
             quality_score=quality_score,
             outputs=outputs,
         )
+        evidence["evidence_schema_version"] = "1.1"
+        evidence["input_sha256"] = input_sha256
+        evidence["output_sha256"] = hash_outputs(out_dir, outputs)
+        evidence["reconciliation"] = reconciliation
         append_evidence(evidence, evidence_file)
 
         return {
             "status": "success",
+            "reconciliation": reconciliation,
             "run_id": run_id,
             "input_rows": input_rows,
             "clean_rows": int(len(cleaned)),
@@ -141,5 +151,8 @@ def run_pipeline(
             input_file=input_path,
             error=exc,
         )
+        failure["evidence_schema_version"] = "1.1"
+        if input_sha256 is not None:
+            failure["input_sha256"] = input_sha256
         append_evidence(failure, evidence_file)
         raise
